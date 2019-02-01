@@ -1,0 +1,130 @@
+<!Doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>test for wyyyy API</title>
+        <link href="https://cdn.bootcss.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script>
+        	var uid;
+        	function get_playlist(){
+        		$.ajax({
+                    type:"GET",
+                    url:"http://192.168.1.107:3000/user/playlist?uid="+uid,
+                    dataType:'json',
+                    success:function(data){
+                    	var st="";
+                    	$.each(data.playlist,function(index,value){
+                    		//alert(value.id);
+                    		//准备解决方案：1.新页面描述歌单 2.新div（hide）
+                    		st+=("<li>"+value.id+"&nbsp;&nbsp;"+"<a><span class='list_link'>"+value.name+"</span></a>"+"</li>");
+                    		//$("#playlist").append("<li>"+value.id+"</li>");
+                    	})
+                    	$("#playlist").append(st);
+                    	//alert(st);
+                    	alert("have got my playlist");
+                        	//alert(data.json);
+                    }
+                       
+      			});
+        	}
+        	function playlist_detail(id){
+        		
+        	}
+        	function into(data){
+        		//登录完成，做的事情：隐藏登录栏、搜寻出我的歌单、播放栏、私人FM按钮栏系列
+        		$("#login").hide();
+        		$("#gedan").show();
+        		$("#profile").show();
+        		$("#show_nickname").text(data.profile.nickname);//显示昵称
+        		alert("OK");
+        		$("#ava").attr("src",data.profile.avatarUrl);
+        		alert(data.profile.avatarUrl);
+        		uid=data.account.id;
+        		get_playlist();
+        	}
+            $(document).ready(function(){
+            	$("#list_detail").hide();
+            	$("#profile").hide();
+            	$("#gedan").hide();
+                $("#form1").submit(function(){
+                    //alert("我在工作");
+                    var num=$("#phone").val();
+                    var pas=$("#password").val();
+                    //alert("192.168.1.107:3000/login/cellphone?phone="+num+"&password="+pas);
+                    //alert(num);
+                    //alert(pas);
+                    $.ajax({
+                    	type:"GET",
+                        url:"http://192.168.1.107:3000/login/cellphone?phone="+num+"&password="+pas,
+                        dataType:'json',
+                        success:function(data){
+                            if(data.code=="200"){
+                                alert("登陆成功，欢迎："+data.profile.nickname);
+                                into(data);
+                            }else if(data.code=="502"){
+                                alert(data.msg);
+                            }
+                            alert("But OK");
+                        	//alert(data.json);
+                        },
+                        error:function(status){
+                            if(status=="502"){
+                                alert("密码错误!");
+                            }else if(status=="400"){
+                                alert("请检查手机号或密码");
+                            }
+                        }
+      				});
+      				return false;
+                });
+                $("#playlist").on('click','.list_link',function(){
+                	//alert("start");
+                	//注意，on()方法可以对当前或脚本生成的(未来的元素事件)进行绑定，很有帮助
+                	$("#list_detail").show();
+                	alert(this.val());
+                	//playlist_detail();
+                	//alert("end");
+                });
+          	});
+        </script>
+    </head>
+    <body>
+        <div id="test">
+        
+        </div>
+        <div class="container-fluid">
+        	<div class="row" id="login">
+        		<div class="col-md-3"></div>
+        		<div class="col-md-6"><form role="form" id="form1">	
+        			<div class="form-group">
+        				<label for="phone">手机号</label>
+        				<input type="number" id="phone" value="13241650367" class="form-control">
+        			</div>
+            		<div class="form-group">
+        				<label for="password">密码</label>
+        				<input type="password" id="password" class="form-control">
+        			</div>
+            		
+            		<button id="doing" class="btn btn-defalut">登录</button>
+        		</form></div>
+        		<div class="col-md-6"></div>
+        	</div>
+        	<div class="row" id="profile">
+        		<span id="show_nickname">aaa</span><br>
+        		<img src="" class="img-circle" id="ava"></img>
+        	</div>
+        	<br><br>
+        	<div class="row" id="gedan">
+        		<h3>歌单一览</h3>
+        		<ul id="playlist">
+        		<li><a class='list_link'>No use</a></li>
+        		</ul>
+        	</div>
+        	<div class="row" id="list_detail">
+        		<h3>歌单详情</h3>
+        	</div>
+        </div>
+    </body>
+</html>
